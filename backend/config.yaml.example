@@ -1,0 +1,19 @@
+database:
+  url: "postgresql+asyncpg://postgres:postgres@localhost:5432/haim_mas"
+  echo: false
+
+redis:
+  url: "redis://localhost:6379/0"
+
+api:
+  host: "0.0.0.0"
+  port: 8000
+  dispatcher_api_keys:
+    - "key-dispatcher-001"
+    - "key-dispatcher-002"
+
+anomaly_detection:
+  gps_can_mismatch_threshold_sec: 60
+  engine_idle_rpm_threshold: 2000
+  engine_idle_speed_threshold: 2
+  production_mismatch_time_min: 30
