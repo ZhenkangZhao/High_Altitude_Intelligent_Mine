@@ -1,0 +1,214 @@
+openapi: 3.0.3
+info:
+  title: HAIM-MAS Scheduling Advisory API
+  version: 1.0.0
+  description: API for intelligent scheduling advisory system
+
+servers:
+  - url: /api/v1
+    description: Primary API
+
+paths:
+  /scheduling/suggest:
+    post:
+      operationId: createSchedulingSuggestion
+      summary: Generate dispatch recommendation
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - vehicle_ids
+                - task_type
+              properties:
+                vehicle_ids:
+                  type: array
+                  items:
+                    type: string
+                  description: List of vehicle IDs to consider
+                task_type:
+                  type: string
+                  enum: [load, unload, reposition]
+                urgency:
+                  type: string
+                  enum: [low, medium, high]
+                  default: medium
+      responses:
+        '200':
+          description: Recommendations generated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  recommendations:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Recommendation'
+
+  /scheduling/feedback:
+    post:
+      operationId: submitFeedback
+      summary: Submit recommendation feedback
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - suggestion_id
+                - accepted
+              properties:
+                suggestion_id:
+                  type: string
+                  format: uuid
+                accepted:
+                  type: boolean
+                actual_outcome:
+                  type: string
+                notes:
+                  type: string
+      responses:
+        '200':
+          description: Feedback recorded
+
+  /anomaly/list:
+    get:
+      operationId: listAnomalies
+      summary: Get anomaly list
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: time_range
+          in: query
+          schema:
+            type: string
+          description: Time range filter (e.g., "1h", "24h", "7d")
+        - name: vehicle_id
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Anomaly list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  anomalies:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Anomaly'
+
+  /anomaly/review:
+    post:
+      operationId: reviewAnomaly
+      summary: Submit anomaly review
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - anomaly_id
+                - is_valid
+              properties:
+                anomaly_id:
+                  type: string
+                  format: uuid
+                is_valid:
+                  type: boolean
+                notes:
+                  type: string
+      responses:
+        '200':
+          description: Review recorded
+
+  /health:
+    get:
+      operationId: healthCheck
+      summary: Health check endpoint
+      responses:
+        '200':
+          description: System health
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [ok, degraded, unhealthy]
+                  gps_delay_ms:
+                    type: integer
+                  can_delay_ms:
+                    type: integer
+                  queue_depth:
+                    type: integer
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+
+  schemas:
+    Recommendation:
+      type: object
+      properties:
+        recommendation_id:
+          type: string
+          format: uuid
+        vehicle_id:
+          type: string
+        target_loading_point:
+          type: string
+        confidence:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+        reasons:
+          type: array
+          items:
+            type: string
+        estimated_wait_minutes:
+          type: integer
+
+    Anomaly:
+      type: object
+      properties:
+        anomaly_id:
+          type: string
+          format: uuid
+        vehicle_id:
+          type: string
+        type:
+          type: string
+          enum:
+            - GPS_CAN_MISMATCH
+            - ENGINE_IDLE_SUSPECTED
+            - PRODUCTION_MISMATCH
+            - SENSOR_FAULT
+            - GPS_DRIFT
+        severity:
+          type: string
+          enum: [low, medium, high]
+        detected_at:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [pending, reviewed, confirmed, false_alarm]
