@@ -13,6 +13,12 @@ const VehicleStatusCard = ({ vehicle }) => {
     abnormal: "异常",
   };
 
+  const workStatusLabels = {
+    working: "作业中",
+    stopped: "已停止",
+    idle: "怠速",
+  };
+
   const statusColor = statusColors[vehicle.status_indicator] || statusColors.normal;
 
   return (
@@ -38,7 +44,7 @@ const VehicleStatusCard = ({ vehicle }) => {
       </div>
       <div style={{ marginTop: "8px", color: "#8C9AAF", fontSize: "14px" }}>
         <div>速度: {vehicle.current_speed} km/h</div>
-        <div>状态: {vehicle.work_status}</div>
+        <div>状态: {workStatusLabels[vehicle.work_status] || vehicle.work_status}</div>
       </div>
     </div>
   );

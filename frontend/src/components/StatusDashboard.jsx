@@ -11,6 +11,7 @@ const StatusDashboard = ({
   onAcceptRecommendation,
   onRejectRecommendation,
   gpsDelay = null,
+  systemStatus = null,
 }) => {
   const normalCount = vehicles.filter((v) => v.status_indicator === "normal").length;
   const attentionCount = vehicles.filter((v) => v.status_indicator === "attention").length;
@@ -38,7 +39,7 @@ const StatusDashboard = ({
         <div style={{ display: "flex", gap: "24px", fontSize: "14px", color: "#8C9AAF" }}>
           <span>当前时间: <strong style={{ color: "#FFFFFF" }}>{formatTime(currentTime)}</strong></span>
           <span>GPS延迟: <strong style={{ color: "#FF9933" }}>{gpsDelay !== null ? `${gpsDelay}秒` : "—"}</strong></span>
-          <span>系统状态: <strong style={{ color: "#00CC66" }}>正常</strong></span>
+          <span>系统状态: <strong style={{ color: systemStatus === "normal" ? "#00CC66" : "#E53333" }}>{systemStatus === "normal" ? "正常" : systemStatus === "error" ? "异常" : "—"}</strong></span>
         </div>
       </div>
 
