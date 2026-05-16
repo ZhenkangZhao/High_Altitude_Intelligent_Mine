@@ -1,4 +1,4 @@
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from backend.src.rules.anomaly_rules import (
     detect_gps_can_mismatch,
     detect_engine_idle,
@@ -28,8 +28,8 @@ class AnomalyDetectionService:
         engine_rpm: int,
         fuel_rate: float,
         production_delta: float,
-        lat: float = None,
-        lon: float = None,
+        lat: Optional[float] = None,
+        lon: Optional[float] = None,
         is_in_mine_area: bool = True,
     ) -> List[Dict[str, Any]]:
         """Run core anomaly detection rules for a vehicle.
