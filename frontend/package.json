@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.44.0",
-    "eslint": "^8.57.0",
+    "eslint": "^10.4.0",
     "eslint-plugin-react": "^7.34.1",
     "playwright": "^1.44.0"
   }
