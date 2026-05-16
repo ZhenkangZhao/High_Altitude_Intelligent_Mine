@@ -30,10 +30,10 @@ class Anomaly(Base):
 
     anomaly_id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     vehicle_id = Column(String(20), nullable=False, index=True)
-    type = Column(SAEnum(AnomalyType), nullable=False)
-    severity = Column(SAEnum(AnomalySeverity), nullable=False)
+    type = Column(SAEnum(AnomalyType), nullable=False)  # type: ignore[var-annotated]
+    severity = Column(SAEnum(AnomalySeverity), nullable=False)  # type: ignore[var-annotated]
     detected_at = Column(DateTime, nullable=False)
-    status = Column(SAEnum(AnomalyStatus), nullable=False, default=AnomalyStatus.PENDING)
+    status = Column(SAEnum(AnomalyStatus), nullable=False, default=AnomalyStatus.PENDING)  # type: ignore[var-annotated]
     review_notes = Column(Text, nullable=True)
     reviewed_by = Column(String(50), nullable=True)
     reviewed_at = Column(DateTime, nullable=True)

@@ -16,6 +16,6 @@ class SchedulingLog(Base):
     log_id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     recommendation_id = Column(String(36), nullable=False, index=True)
     dispatcher_id = Column(String(50), nullable=False)
-    action = Column(SAEnum(LogAction), nullable=False)
+    action = Column(SAEnum(LogAction), nullable=False)  # type: ignore[var-annotated]
     timestamp = Column(DateTime, nullable=False)
     notes = Column(Text, nullable=True)

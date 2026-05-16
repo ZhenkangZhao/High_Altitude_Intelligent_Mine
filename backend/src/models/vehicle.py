@@ -2,7 +2,7 @@ from sqlalchemy import Column, String, Float, Enum, DateTime
 from sqlalchemy.orm import declarative_base
 import enum
 
-Base = declarative_base()
+Base = declarative_base()  # type: ignore[valid-type]
 
 
 class WorkStatus(enum.Enum):
@@ -19,5 +19,5 @@ class Vehicle(Base):
     current_lon = Column(Float, nullable=True)
     current_speed = Column(Float, nullable=False, default=0.0)
     heading = Column(Float, nullable=True)
-    work_status = Column(Enum(WorkStatus), nullable=False, default=WorkStatus.STOPPED)
+    work_status = Column(Enum(WorkStatus), nullable=False, default=WorkStatus.STOPPED)  # type: ignore[var-annotated]
     last_updated = Column(DateTime, nullable=True)

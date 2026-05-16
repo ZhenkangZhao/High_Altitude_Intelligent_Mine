@@ -19,7 +19,7 @@ class DispatchRecommendation(Base):
     target_loading_point = Column(String(20), nullable=False)
     confidence = Column(Float, nullable=False)
     reasons = Column(Text, nullable=False)
-    status = Column(SAEnum(RecommendationStatus), nullable=False, default=RecommendationStatus.PENDING)
+    status = Column(SAEnum(RecommendationStatus), nullable=False, default=RecommendationStatus.PENDING)  # type: ignore[var-annotated]
     created_at = Column(DateTime, nullable=False)
     responded_at = Column(DateTime, nullable=True)
     rejection_reason = Column(String(200), nullable=True)

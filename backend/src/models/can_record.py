@@ -11,7 +11,7 @@ class CANRecord(Base):
     engine_rpm = Column(Integer, nullable=False, default=0)
     fuel_rate = Column(Float, nullable=False, default=0.0)
     battery_soc = Column(Integer, nullable=False, default=100)
-    work_status = Column(SAEnum(WorkStatus), nullable=False, default=WorkStatus.STOPPED)
+    work_status = Column(SAEnum(WorkStatus), nullable=False, default=WorkStatus.STOPPED)  # type: ignore[var-annotated]
 
     __table_args__ = (
         Index("ix_can_vehicle_timestamp", "vehicle_id", "timestamp"),
