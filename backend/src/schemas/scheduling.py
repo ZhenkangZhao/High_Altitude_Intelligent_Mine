@@ -12,13 +12,17 @@ class SuggestRequest(BaseModel):
 
 class RecommendationItem(BaseModel):
     vehicle_id: str
-    target_loading_point: str
+    target_loading_point: Optional[str] = None
     confidence: float = Field(..., ge=0.0, le=1.0)
-    reasons: List[str]
+    reasons: List[str] = Field(default_factory=list)
+    suggestion_id: Optional[uuid.UUID] = None
+    wait_time: Optional[float] = None
+    travel_time: Optional[float] = None
 
 
 class SuggestResponse(BaseModel):
     recommendations: List[RecommendationItem]
+    request_id: Optional[str] = None
 
 
 class FeedbackRequest(BaseModel):
@@ -30,3 +34,4 @@ class FeedbackRequest(BaseModel):
 
 class FeedbackResponse(BaseModel):
     status: str = "recorded"
+    processed_at: Optional[datetime] = None

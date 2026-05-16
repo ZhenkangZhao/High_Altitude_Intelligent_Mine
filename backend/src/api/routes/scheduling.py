@@ -1,3 +1,4 @@
+from typing import List
 from fastapi import APIRouter, Depends
 from datetime import datetime
 import uuid
@@ -33,3 +34,9 @@ async def suggest_dispatch(request: SuggestRequest):
 async def submit_feedback(request: FeedbackRequest):
     """Record dispatcher feedback on a recommendation."""
     return FeedbackResponse(status="recorded")
+
+
+@router.get("/recommendations", response_model=List[dict])
+async def list_recommendations():
+    """List current dispatch recommendations (stub for now)."""
+    return []
