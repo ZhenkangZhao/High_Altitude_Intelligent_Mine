@@ -30,7 +30,7 @@ jobs:
       - name: Type check (mypy)
         run: |
           pip install mypy -q
-          mypy backend/src/ --ignore-missing-imports
+          cd backend && mypy src/ --ignore-missing-imports
 
       - name: Test with coverage
         env:
