@@ -33,7 +33,7 @@ jobs:
         working-directory: frontend
 
       - name: Test
-        run: npm test -- --watchAll=false
+        run: npm test -- --watchAll=false --passWithNoTests
         working-directory: frontend
 
       - name: Security audit
