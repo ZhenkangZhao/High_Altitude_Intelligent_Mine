@@ -1,13 +1,19 @@
 from fastapi import APIRouter, Depends
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+from fastapi import HTTPException
 
 from backend.src.schemas.scheduling import SuggestRequest, SuggestResponse, FeedbackRequest, FeedbackResponse
 from backend.src.services.scheduling import GreedyScheduler
 from backend.src.api.dependencies import verify_api_key
 
+limiter = Limiter(key_func=get_remote_address)
 router = APIRouter(prefix="/api/v1/scheduling", dependencies=[Depends(verify_api_key)])
 
 
 @router.post("/suggest", response_model=SuggestResponse)
+@limiter.limit("30/minute")
 async def suggest_dispatch(request: SuggestRequest):
     scheduler = GreedyScheduler()
     vehicles = [
@@ -22,6 +28,7 @@ async def suggest_dispatch(request: SuggestRequest):
 
 
 @router.post("/feedback", response_model=FeedbackResponse)
+@limiter.limit("30/minute")
 async def submit_feedback(request: FeedbackRequest):
     return FeedbackResponse(status="recorded")
 
