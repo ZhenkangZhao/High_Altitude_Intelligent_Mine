@@ -2,7 +2,7 @@ from sqlalchemy import Column, String, Float, Enum, DateTime
 from sqlalchemy.orm import declarative_base
 import enum
 
-Base = declarative_base()  # type: ignore[valid-type]
+Base = declarative_base()
 
 
 class WorkStatus(enum.Enum):
@@ -11,7 +11,7 @@ class WorkStatus(enum.Enum):
     WORKING = "工作"
 
 
-class Vehicle(Base):
+class Vehicle(Base):  # type: ignore[valid-type,misc]
     __tablename__ = "vehicles"
 
     vehicle_id = Column(String(20), primary_key=True)

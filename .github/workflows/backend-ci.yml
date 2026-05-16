@@ -30,7 +30,7 @@ jobs:
       - name: Type check (mypy)
         run: |
           pip install mypy -q
-          cd backend && mypy src/ --ignore-missing-imports --no-implicit-optional --config-file=pyproject.toml 2>/dev/null || mypy src/ --ignore-missing-imports --no-implicit-optional
+          cd backend && mypy src/ --config-file=mypy.ini
 
       - name: Test with coverage
         env:
