@@ -1,9 +1,8 @@
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from backend.src.rules.anomaly_rules import (
     detect_gps_can_mismatch,
     detect_engine_idle,
     detect_production_mismatch,
-    detect_sensor_fault,
     detect_gps_drift,
     AnomalyResult,
 )
@@ -33,7 +32,11 @@ class AnomalyDetectionService:
         lon: float = None,
         is_in_mine_area: bool = True,
     ) -> List[Dict[str, Any]]:
-        """Run all anomaly detection rules for a vehicle."""
+        """Run core anomaly detection rules for a vehicle.
+
+        Note: sensor_fault detection requires external sensor health tracking
+        (gps_issues/can_issues counts). Call detect_sensor_fault separately if needed.
+        """
         results = []
 
         gps_can_result = detect_gps_can_mismatch(

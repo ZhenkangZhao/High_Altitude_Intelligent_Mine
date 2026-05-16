@@ -1,12 +1,20 @@
 const API_BASE = "/api/v1";
 
+const getApiKey = () => {
+  const key = process.env.REACT_APP_API_KEY;
+  if (!key) {
+    throw new Error("REACT_APP_API_KEY environment variable is required");
+  }
+  return key;
+};
+
 export const api = {
   async suggestDispatch(vehicleIds, taskType, urgency) {
     const response = await fetch(`${API_BASE}/scheduling/suggest`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-API-Key": "key-dispatcher-001",
+        "X-API-Key": getApiKey(),
       },
       body: JSON.stringify({
         vehicle_ids: vehicleIds,
@@ -14,6 +22,9 @@ export const api = {
         urgency: urgency,
       }),
     });
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status} ${response.statusText}`);
+    }
     return response.json();
   },
 
@@ -22,7 +33,7 @@ export const api = {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-API-Key": "key-dispatcher-001",
+        "X-API-Key": getApiKey(),
       },
       body: JSON.stringify({
         suggestion_id: suggestionId,
@@ -30,6 +41,9 @@ export const api = {
         notes: notes,
       }),
     });
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status} ${response.statusText}`);
+    }
     return response.json();
   },
 
@@ -37,8 +51,11 @@ export const api = {
     const params = new URLSearchParams({ time_range: timeRange });
     if (vehicleId) params.append("vehicle_id", vehicleId);
     const response = await fetch(`${API_BASE}/anomaly/list?${params}`, {
-      headers: { "X-API-Key": "key-dispatcher-001" },
+      headers: { "X-API-Key": getApiKey() },
     });
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status} ${response.statusText}`);
+    }
     return response.json();
   },
 
@@ -47,7 +64,7 @@ export const api = {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-API-Key": "key-dispatcher-001",
+        "X-API-Key": getApiKey(),
       },
       body: JSON.stringify({
         anomaly_id: anomalyId,
@@ -55,6 +72,9 @@ export const api = {
         notes: notes,
       }),
     });
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status} ${response.statusText}`);
+    }
     return response.json();
   },
 };
