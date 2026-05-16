@@ -1,4 +1,3 @@
-/* global process */
 const API_BASE = "/api/v1";
 
 const getApiKey = () => {
