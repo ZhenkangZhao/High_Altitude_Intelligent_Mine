@@ -20,7 +20,7 @@ def test_generate_recommendation_single_vehicle():
         {"location_id": "LP001", "current_queue_length": 2, "avg_service_time": 10},
         {"location_id": "LP002", "current_queue_length": 0, "avg_service_time": 10},
     ]
-    recommendation = generate_dispatch_recommendation(vehicle_id, available_loading_points)
+    recommendation = generate_dispatch_recommendation(vehicle_id, None, available_loading_points)
     assert recommendation["vehicle_id"] == "V001"
     assert recommendation["target_loading_point"] == "LP002"
     assert 0 <= recommendation["confidence"] <= 1
