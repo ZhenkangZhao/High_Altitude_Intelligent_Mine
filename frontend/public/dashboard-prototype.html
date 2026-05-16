@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HAIM-MAS 调度看板</title>
+  <script type="module">
+    import { prepare, layout } from 'https://esm.sh/@chenglou/pretext@2.5.1';
+    window.Pretext = { prepare, layout };
+  </script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: #1890FF;
+      --primary-deep: #0D5EBB;
+      --bg: #0F1419;
+      --card-bg: #1A2332;
+      --card-border: #2A3A52;
+      --text: #FFFFFF;
+      --text-secondary: #8C9AAF;
+      --danger: #E53333;
+      --warning: #FF9933;
+      --success: #00CC66;
+      --blue: #1890FF;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .header h1 {
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .header-meta {
+      display: flex;
+      gap: 24px;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .header-meta .status-ok { color: var(--success); }
+    .header-meta .status-warn { color: var(--warning); }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .stat-indicator {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .stat-indicator.green { background: rgba(0,204,102,0.15); color: var(--success); border: 2px solid var(--success); }
+    .stat-indicator.yellow { background: rgba(255,153,51,0.15); color: var(--warning); border: 2px solid var(--warning); }
+    .stat-indicator.red { background: rgba(229,51,51,0.15); color: var(--danger); border: 2px solid var(--danger); }
+
+    .stat-body { flex: 1; }
+    .stat-count { font-size: 36px; font-weight: 700; line-height: 1; }
+    .stat-count.green { color: var(--success); }
+    .stat-count.yellow { color: var(--warning); }
+    .stat-count.red { color: var(--danger); }
+    .stat-label { font-size: 16px; color: var(--text-secondary); margin-top: 4px; }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 16px;
+    }
+
+    .panel {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--card-border);
+      font-size: 16px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .panel-body { padding: 16px 20px; }
+
+    .vehicle-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .vehicle-item:last-child { border-bottom: none; }
+
+    .vehicle-badge {
+      width: 40px;
+      height: 40px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .vehicle-badge.red { background: var(--danger); color: #fff; }
+    .vehicle-badge.yellow { background: var(--warning); color: #fff; }
+    .vehicle-badge.green { background: var(--success); color: #fff; }
+
+    .vehicle-info { flex: 1; min-width: 0; }
+    .vehicle-name { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+    .vehicle-desc { font-size: 13px; color: var(--text-secondary); }
+
+    .vehicle-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+    .btn {
+      height: 36px;
+      padding: 0 16px;
+      border-radius: 6px;
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: opacity 0.15s;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn-accept { background: var(--success); color: #fff; }
+    .btn-reject { background: rgba(255,255,255,0.1); color: var(--text); border: 1px solid var(--card-border); }
+
+    .alert-item {
+      background: rgba(229,51,51,0.08);
+      border: 1px solid rgba(229,51,51,0.3);
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+    }
+    .alert-item:last-child { margin-bottom: 0; }
+
+    .alert-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--danger);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .alert-title::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: var(--danger);
+      border-radius: 2px;
+      display: inline-block;
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .alert-body { font-size: 13px; color: var(--text-secondary); }
+    .alert-suggestion { margin-top: 8px; font-size: 14px; color: var(--text); }
+
+    .badge-blue {
+      background: rgba(24,144,255,0.15);
+      color: var(--blue);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 32px;
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    .legend {
+      display: flex;
+      gap: 24px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 16px;
+    }
+
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .legend-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+    }
+    .legend-dot.green { background: var(--success); }
+    .legend-dot.yellow { background: var(--warning); }
+    .legend-dot.red { background: var(--danger); }
+
+    @media (max-width: 900px) {
+      .main-grid { grid-template-columns: 1fr; }
+      .stats-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>HAIM-MAS 调度看板</h1>
+    <div class="header-meta">
+      <span>当前时间: <strong id="clock">--:--</strong></span>
+      <span>GPS延迟: <strong class="status-warn">23秒</strong></span>
+      <span>系统状态: <strong class="status-ok">正常</strong></span>
+    </div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-indicator green">22</div>
+      <div class="stat-body">
+        <div class="stat-count green">22</div>
+        <div class="stat-label">台 正在作业</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-indicator yellow">5</div>
+      <div class="stat-body">
+        <div class="stat-count yellow">5</div>
+        <div class="stat-label">台 效率偏低</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-indicator red">3</div>
+      <div class="stat-body">
+        <div class="stat-count red">3</div>
+        <div class="stat-label">台 停等异常</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-grid">
+    <div class="panel">
+      <div class="panel-header">🔴 停等车辆</div>
+      <div class="panel-body">
+
+        <div class="vehicle-item">
+          <div class="vehicle-badge red">V012</div>
+          <div class="vehicle-info">
+            <div class="vehicle-name">V012号车</div>
+            <div class="vehicle-desc">在3号铲等待 <strong>23分钟</strong>，2号铲有空</div>
+          </div>
+          <div class="vehicle-actions">
+            <button class="btn btn-accept" onclick="this.textContent='已采纳'">✓ 采纳</button>
+            <button class="btn btn-reject" onclick="this.textContent='已否决'">✗ 否决</button>
+          </div>
+        </div>
+
+        <div class="vehicle-item">
+          <div class="vehicle-badge red">V008</div>
+          <div class="vehicle-info">
+            <div class="vehicle-name">V008号车</div>
+            <div class="vehicle-desc">满载等待 <strong>15分钟</strong>，爆堆不足</div>
+          </div>
+          <div class="vehicle-actions">
+            <button class="btn btn-accept" onclick="this.textContent='已采纳'">✓ 采纳</button>
+            <button class="btn btn-reject" onclick="this.textContent='已否决'">✗ 否决</button>
+          </div>
+        </div>
+
+        <div class="vehicle-item">
+          <div class="vehicle-badge red">V021</div>
+          <div class="vehicle-info">
+            <div class="vehicle-name">V021号车</div>
+            <div class="vehicle-desc">故障，维修中</div>
+          </div>
+          <div class="vehicle-actions">
+            <span class="badge-blue">已通知维修</span>
+          </div>
+        </div>
+
+        <div class="vehicle-item">
+          <div class="vehicle-badge yellow">V003</div>
+          <div class="vehicle-info">
+            <div class="vehicle-name">V003号车</div>
+            <div class="vehicle-desc">效率偏低，当前油耗异常</div>
+          </div>
+          <div class="vehicle-actions">
+            <button class="btn btn-accept" onclick="this.textContent='已采纳'">✓ 采纳</button>
+            <button class="btn btn-reject" onclick="this.textContent='已否决'">✗ 否决</button>
+          </div>
+        </div>
+
+        <div class="vehicle-item">
+          <div class="vehicle-badge yellow">V017</div>
+          <div class="vehicle-info">
+            <div class="vehicle-name">V017号车</div>
+            <div class="vehicle-desc">在5号铲等待 <strong>12分钟</strong></div>
+          </div>
+          <div class="vehicle-actions">
+            <button class="btn btn-accept" onclick="this.textContent='已采纳'">✓ 采纳</button>
+            <button class="btn btn-reject" onclick="this.textContent='已否决'">✗ 否决</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">⚠️ 设备健康监测</div>
+      <div class="panel-body">
+
+        <div class="alert-item">
+          <div class="alert-title">V012 — 发动机空转时间过长</div>
+          <div class="alert-body">CAN: 发动机转速 2150 RPM，持续42分钟<br>GPS: 速度 0 km/h，近10分钟无位移</div>
+          <div class="alert-suggestion">建议：现场确认作业状态</div>
+        </div>
+
+        <div class="alert-item">
+          <div class="alert-title">V008 — GPS-CAN状态不一致</div>
+          <div class="alert-body">GPS显示移动（速度 8km/h），但CAN显示停机状态<br>传感器可能异常，请检查数据准确性</div>
+          <div class="alert-suggestion">建议：现场确认传感器</div>
+        </div>
+
+        <div class="alert-item">
+          <div class="alert-title">V003 — 油耗异常</div>
+          <div class="alert-body">当前油耗 38L/h，高于平均油耗 +40%<br>可能存在空驶或绕路行为</div>
+          <div class="alert-suggestion">建议：以"油耗核查"名义复核轨迹</div>
+        </div>
+
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot green"></div> 正常</div>
+          <div class="legend-item"><div class="legend-dot yellow"></div> 关注</div>
+          <div class="legend-item"><div class="legend-dot red"></div> 异常</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('clock').textContent =
+        now.getHours().toString().padStart(2,'0') + ':' +
+        now.getMinutes().toString().padStart(2,'0');
+    }
+    updateClock();
+    setInterval(updateClock, 10000);
+  </script>
+
+</body>
+</html>
