@@ -1,4 +1,4 @@
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any
 from backend.src.rules.anomaly_rules import (
     detect_gps_can_mismatch,
     detect_engine_idle,

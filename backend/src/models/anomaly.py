@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Float, DateTime, Enum as SAEnum, Text
+from sqlalchemy import Column, String, DateTime, Enum as SAEnum, Text
 from backend.src.models.vehicle import Base
 import enum
 import uuid

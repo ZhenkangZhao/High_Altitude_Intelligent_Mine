@@ -1,8 +1,6 @@
 from fastapi import APIRouter, Depends
 from slowapi import Limiter
 from slowapi.util import get_remote_address
-from slowapi.errors import RateLimitExceeded
-from fastapi import HTTPException
 
 from backend.src.schemas.scheduling import SuggestRequest, SuggestResponse, FeedbackRequest, FeedbackResponse
 from backend.src.services.scheduling import GreedyScheduler
